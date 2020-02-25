@@ -1,6 +1,6 @@
 let GOAP =
 {
-	State: require("GOAP/State")
+	State: require("GOAP_State")
 }
 
 function PlannerNode(args)
@@ -82,16 +82,21 @@ Planner.prototype.getPlan = function()
 
 Planner.prototype.init = function(world, goal, actions)
 {
+	console.log("init")
+
 	this.reset()
 
 	this.goal = goal
 	this.actions = actions
 
+	console.log("goal: " + goal)
+
 	let node = new PlannerNode(
 	{
 		state: world,
-		h: this.heuristic(node, goal)
+		h: world.missing(this.goal)
 	})
+
 	this.open.push(node)
 }
 
@@ -102,10 +107,13 @@ Planner.prototype.run = function()
 
 	let node = this.open.pop()
 
+	console.log("open: " + node.state)
+
 	this.closed.push(node)
 
-	if (GOAP.State.missing(node.state, goal))
+	if (node.state.missing(this.goal) === 0)
 	{
+		console.log("found goal")
 		this.found = node
 		return true // found goal
 	}
@@ -114,11 +122,11 @@ Planner.prototype.run = function()
 
 	for (let index = 0, num = nodes.length; index < num; ++index)
 	{
-		let child = nodex[index]
+		let child = nodes[index]
 
 		{
 			let indexOpen = this.open.findIndex((openNode) =>
-				GOAP.State.equal(openNode.state, child.state))
+				child.state.equal(openNode.state))
 			if (indexOpen > -1)
 			{
 				let openNode = this.open[indexOpen]
@@ -138,7 +146,7 @@ Planner.prototype.run = function()
 
 		{
 			let indexClosed = this.closed.findIndex((openNode) =>
-				GOAP.State.equal(openNode.state, child.state))
+				child.state.equal(openNode.state))
 			if (indexClosed > -1)
 			{
 				let closedNode = this.closed[indexClosed]
@@ -154,6 +162,8 @@ Planner.prototype.run = function()
 				}
 			}
 		}
+
+		console.log("child: " + child.action)
 
 		this.open.push(child)
 	}

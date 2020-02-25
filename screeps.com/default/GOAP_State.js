@@ -1,8 +1,16 @@
 
-function State()
+function State(array)
 {
 	this._care = 0
 	this._mask = 0
+
+	if (array)
+	{
+		for (let index = 0, num = array.length; index < num; ++index)
+		{
+			this.set(array[index][0], array[index][1])
+		}
+	}
 }
 
 State.prototype.set = function(index, value)
@@ -63,7 +71,7 @@ State.prototype._setMask = function(index, value)
 	return this
 }
 
-State.prototype._setMask = function(bits, index)
+State.prototype._getMask = function(bits, index)
 {
 	return this._mask & (1 << index)
 }

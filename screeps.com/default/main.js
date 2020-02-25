@@ -1,14 +1,14 @@
 
 let Screeps =
 {
-	Actions: require("Screeps/Action"),
-	WorldState: require("Screeps/WorldState"),
+	Actions: require("Screeps_Actions"),
+	Flags: require("Screeps_WorldState"),
 }
 
 let GOAP =
 {
-	Planner: require("GOAP/Planner"),
-	State: require("GOAP/State"),
+	Planner: require("GOAP_Planner"),
+	State: require("GOAP_State"),
 }
 
 let Agent =
@@ -23,20 +23,25 @@ let Agent =
 
 	World: new GOAP.State(
 	[
-		[ GOAP.Flags.hasEnergy, false ],
+		[ Screeps.Flags.hasEnergy, false ],
 	]),
 	
 	Goal: new GOAP.State(
 	[
-		[ GOAP.Flags.hasEnergy, true ],
+		[ Screeps.Flags.hasEnergy, true ],
 	])
+}
+
+for (let field in Screeps.Flags)
+{
+	console.log(`${field}: ${Screeps.Flags[field]}`)
 }
 
 var Planner = new GOAP.Planner()
 
 module.exports.loop = function()
 {
-	let agent = Game.creep["Agent"]
+	let agent = Game.creeps["Agent"]
 
 	if (agent == null)
 	{
@@ -64,7 +69,7 @@ module.exports.plan = function()
 
 	while (true)
 	{
-		if (count++ < 100)
+		if (count++ > 100)
 		{
 			console.log("Planning timed out")
 			break
@@ -83,5 +88,16 @@ module.exports.plan = function()
 	for (let index = 0, num = plan.length; index < num; ++index)
 	{
 		console.log(`${index}: ${plan[index]}`)
+	}
+
+	if (plan.length > 0)
+	{
+		let agent = Game.creeps["Agent"]
+
+		if (agent != null)
+		{
+			agent.memory.plan = plan
+			agent.memory.step = 0
+		}
 	}
 }

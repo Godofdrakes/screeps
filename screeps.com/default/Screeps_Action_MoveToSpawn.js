@@ -1,31 +1,36 @@
 
-var GOAP = 
+let GOAP = 
 {
-	Action: require("GOAP/Action"),
-	State: require("GOAP/State")
+	Action: require("GOAP_Action"),
+	State: require("GOAP_State")
 }
 
-function Action_MoveToSpawn()
+let Screeps =
 {
-	GOAP.Action.call(this, { name: "MoveToSpawn", cost: 1 })
-
-	this.preState = new GOAP.World(GOAP.Flags)
-	
-	this.postState = new GOAP.World(GOAP.Flags)
-	this.postState[GOAP.Flags.inRange_Spawn] = true
+	Flags: require("Screeps_WorldState")
 }
 
-Action_MoveToSpawn.prototype.getTarget = function(agent)
+function MoveToSpawn()
+{
+	GOAP.Action.call(this)
+
+	this.name = "MoveToSpawn"
+	this.cost = 1
+
+	this.postState.set(Screeps.Flags.inRange_Spawn, true)
+}
+
+MoveToSpawn.prototype.getTarget = function(agent)
 {
 	return Game.getObjectById(agent.memory.targetId)
 }
 
-Action_MoveToSpawn.prototype.setTarget = function(agent, target)
+MoveToSpawn.prototype.setTarget = function(agent, target)
 {
 	return agent.memory.targetId = target.id
 }
 
-Action_MoveToSpawn.prototype.enter = function(agent)
+MoveToSpawn.prototype.enter = function(agent)
 {
 	var spawns = agent.room.find(FIND_MY_SPAWNS)
 	for (var spawn of spawns)
@@ -44,14 +49,14 @@ Action_MoveToSpawn.prototype.enter = function(agent)
 	return false
 }
 
-Action_MoveToSpawn.prototype.exit = function(agent)
+MoveToSpawn.prototype.exit = function(agent)
 {
 	agent.memory.path = []
 	agent.memory.pathIndex = 0
 	return true
 }
 
-Action_MoveToSpawn.prototype.tick = function(agent)
+MoveToSpawn.prototype.tick = function(agent)
 {
 	var path = agent.memory.path
 
@@ -69,4 +74,4 @@ Action_MoveToSpawn.prototype.tick = function(agent)
 	return true
 }
 
-module.exports = Action_MoveToSpawn
+module.exports = MoveToSpawn

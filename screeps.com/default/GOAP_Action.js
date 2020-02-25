@@ -1,10 +1,12 @@
 
+let State = require("GOAP_State")
+
 function Action()
 {
 	this.name = "ActionBase"
 	this.cost = 0
-	this.preState = []
-	this.postState = []
+	this.preState = new State()
+	this.postState = new State()
 }
 
 Action.prototype.toString = function()

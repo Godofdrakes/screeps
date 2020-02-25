@@ -1,10 +1,10 @@
-let Enum = require("Screeps/Enum")
+let Enum = require("Enum")
 
 module.export = new Enum("WorldState",
 [
 	"alive",
 
-	"inRange_source",
+	"inRange_Source",
 	"inRange_spawn",
 
 	"hasEnergy",

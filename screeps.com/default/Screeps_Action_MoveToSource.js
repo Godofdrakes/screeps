@@ -1,32 +1,36 @@
 
-var GOAP = 
+let GOAP = 
 {
-	Action: require("GOAPAction"),
-	Flags: require("GOAPFlags"),
-	World: require("GOAPWorld")
+	Action: require("GOAP_Action"),
+	State: require("GOAP_State")
 }
 
-function Action_MoveToSource()
+let Screeps =
 {
-	GOAP.Action.call(this, { name: "MoveToSource", cost: 1 })
-
-	this.preState = new GOAP.World(GOAP.Flags)
-	
-	this.postState = new GOAP.World(GOAP.Flags)
-	this.postState[GOAP.Flags.inRange_Source] = true
+	Flags: require("Screeps_WorldState")
 }
 
-Action_MoveToSource.prototype.getTarget = function(agent)
+function MoveToSource()
+{
+	GOAP.Action.call(this)
+
+	this.name = "MoveToSource"
+	this.cost = 1
+
+	this.postState.set(Screeps.Flags.inRange_Source, true)
+}
+
+MoveToSource.prototype.getTarget = function(agent)
 {
 	return Game.getObjectById(agent.memory.targetId)
 }
 
-Action_MoveToSource.prototype.setTarget = function(agent, target)
+MoveToSource.prototype.setTarget = function(agent, target)
 {
 	return agent.memory.targetId = target.id
 }
 
-Action_MoveToSource.prototype.enter = function(agent)
+MoveToSource.prototype.enter = function(agent)
 {
 	var sources = agent.room.find(FIND_SOURCES)
 	for (var source of sources)
@@ -48,14 +52,14 @@ Action_MoveToSource.prototype.enter = function(agent)
 	return false
 }
 
-Action_MoveToSource.prototype.exit = function(agent)
+MoveToSource.prototype.exit = function(agent)
 {
 	agent.memory.path = []
 	agent.memory.pathIndex = 0
 	return true
 }
 
-Action_MoveToSource.prototype.tick = function(agent)
+MoveToSource.prototype.tick = function(agent)
 {
 	var path = agent.memory.path
 
@@ -73,4 +77,4 @@ Action_MoveToSource.prototype.tick = function(agent)
 	return true
 }
 
-module.exports = Action_MoveToSource
+module.exports = MoveToSource
