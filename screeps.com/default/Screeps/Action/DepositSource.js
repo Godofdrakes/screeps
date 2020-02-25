@@ -6,9 +6,9 @@ var GOAP =
 	World: require("GOAPWorld")
 }
 
-function Action_DepositSource()
+function DepositSourceAction()
 {
-	GOAP.Action.call(this, { name: "DepositSource", cost: 1 })
+	GOAP.Action.call(this, { name: "DepositSourceAction", cost: 1 })
 
 	this.preState = new GOAP.World(GOAP.Flags)
 	this.preState[GOAP.Flags.inRange_Spawn] = true
@@ -19,12 +19,12 @@ function Action_DepositSource()
 	this.postState[GOAP.Flags.hasEnergy] = false
 }
 
-Action_DepositSource.prototype.getTarget = function(agent)
+DepositSourceAction.prototype.getTarget = function(agent)
 {
 	return Game.getObjectById(agent.memory.targetId)
 }
 
-Action_DepositSource.prototype.enter = function(agent)
+DepositSourceAction.prototype.enter = function(agent)
 {
 	if (agent.store.getUsedCapacity(RESOURCE_ENERGY) > 0)
 	{
@@ -34,12 +34,12 @@ Action_DepositSource.prototype.enter = function(agent)
 	return false
 }
 
-Action_DepositSource.prototype.exit = function(agent)
+DepositSourceAction.prototype.exit = function(agent)
 {
 	return agent.store.getUsedCapacity(RESOURCE_ENERGY) === 0
 }
 
-Action_DepositSource.prototype.tick = function(agent)
+DepositSourceAction.prototype.tick = function(agent)
 {
 	if (agent.store.getUsedCapacity(RESOURCE_ENERGY) === 0)
 	{
@@ -61,4 +61,4 @@ Action_DepositSource.prototype.tick = function(agent)
 	return false
 }
 
-module.exports = Action_DepositSource
+module.exports = DepositSourceAction

@@ -1,35 +1,41 @@
 
-module.exports =
+function StateMachine(args)
 {
-	tick: function(agent)
+	this.name = args.name || "StateMachine"
+	this.stateMap = new Map(args.states || [])
+}
+
+StateMachine.prototype.enterState = function(agent, state)
+{
+	if (state.enter(this, agent))
 	{
-		if (this._state === null) continue
-		
-		this._state.tick(this, agent)
-	},
-	
-	setState: function(agent, state)
-	{
-		if (this._state !== null)
-		{
-			const success = this._state.exit(this, agent)
-			if (!success)
-			{
-				throw Error("Failed to exit state")
-			}
-			
-			this._state = null
-		}
-	
-		if (state !== null)
-		{
-			const success = state.enter(this, agent)
-			if (!success)
-			{
-				throw Error("Failed to enter state")
-			}
-	
-			this._state = state
-		}
+		agent.memory[this.name].state = state.name
+		return true
 	}
+
+	return false
+}
+
+StateMachine.prototype.exitState = function(agent, state)
+{
+	if (state.exit(this, agent))
+	{
+		agent.memory[this.name].state = null
+		return true
+	}
+
+	return false
+}
+
+StateMachine.prototype.tickState = function(agent)
+{
+	var agentState = agent.memory[this.name].state
+	var state = this.stateMap.get(agentState)
+	
+	if (state)
+	{
+		return state.tick(this, agent)
+	}
+
+	return true
 }

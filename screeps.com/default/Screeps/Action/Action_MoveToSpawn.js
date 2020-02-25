@@ -1,9 +1,8 @@
 
 var GOAP = 
 {
-	Action: require("GOAPAction"),
-	Flags: require("GOAPFlags"),
-	World: require("GOAPWorld")
+	Action: require("GOAP/Action"),
+	State: require("GOAP/State")
 }
 
 function Action_MoveToSpawn()
