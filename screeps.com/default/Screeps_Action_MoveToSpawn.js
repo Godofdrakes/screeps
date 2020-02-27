@@ -5,7 +5,7 @@ let GOAP =
 	State: require("GOAP_State")
 }
 
-let Screeps =
+var Screeps =
 {
 	Flags: require("Screeps_WorldState")
 }
@@ -17,7 +17,7 @@ function MoveToSpawn()
 	this.name = "MoveToSpawn"
 	this.cost = 1
 
-	this.postState.set(Screeps.Flags.inRange_Spawn, true)
+	this.postState.set(Screeps.Flags.get("inRange_Spawn"), true)
 }
 
 MoveToSpawn.prototype.getTarget = function(agent)

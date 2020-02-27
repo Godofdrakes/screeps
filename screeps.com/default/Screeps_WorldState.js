@@ -1,11 +1,9 @@
-let Enum = require("Enum")
 
-module.export = new Enum("WorldState",
-[
-	"alive",
+var WorldState = new Map()
 
-	"inRange_Source",
-	"inRange_spawn",
+WorldState.set("alive", 0)
+WorldState.set("inRange_Source", 1)
+WorldState.set("inRange_Spawn", 2)
+WorldState.set("hasEnergy", 3)
 
-	"hasEnergy",
-])
+module.exports = WorldState

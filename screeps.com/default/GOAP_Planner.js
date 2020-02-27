@@ -10,7 +10,7 @@ function PlannerNode(args)
 	this.parent = args.parent || null
 
 	this.g = args.g || 0 // cost from start
-	this.h = args.h || 0 // heuristic
+	this.h = args.h || 0 // heuristic cost to goal
 	this.f = this.g + this.h
 }
 
@@ -30,15 +30,15 @@ Planner.prototype.getChildren = function(node)
 
 	for (let [name, action] of this.actions)
 	{
-		let state = new GOAP.State()
-		state.merge(node.state)
-		state.merge(action.postState)
-
-		const canAffect = state.missing(action.preState) === 0
-		const hasEffect = state.equal(action.postState) !== true
+		const canAffect = node.state.missing(action.preState) === 0
+		const hasEffect = node.state.missing(action.postState) !== 0
 
 		if (canAffect && hasEffect)
 		{
+			let state = new GOAP.State()
+			state.merge(node.state)
+			state.merge(action.postState)
+
 			nodes.push(new PlannerNode(
 			{
 				state: state,
@@ -46,7 +46,7 @@ Planner.prototype.getChildren = function(node)
 				parent: node,
 
 				g: node.g + action.cost,
-				h: state.missing(this.goal)
+				h: state.heuristicDifference(this.goal)
 			}))
 		}
 	}
@@ -74,6 +74,8 @@ Planner.prototype.getPlan = function()
 			node = node.parent
 		}
 
+		plan.reverse()
+
 		return plan
 	}
 
@@ -94,7 +96,7 @@ Planner.prototype.init = function(world, goal, actions)
 	let node = new PlannerNode(
 	{
 		state: world,
-		h: world.missing(this.goal)
+		h: world.heuristicDifference(this.goal)
 	})
 
 	this.open.push(node)
@@ -103,11 +105,14 @@ Planner.prototype.init = function(world, goal, actions)
 Planner.prototype.run = function()
 {
 	if (this.open.length === 0)
-		return true // no nodes to open
+	{
+		console.log("open nodes exhausted")
+		return true
+	}
 
 	let node = this.open.pop()
 
-	console.log("open: " + node.state)
+	console.log(`open: ${node.state}`)
 
 	this.closed.push(node)
 
@@ -115,14 +120,18 @@ Planner.prototype.run = function()
 	{
 		console.log("found goal")
 		this.found = node
-		return true // found goal
+		return true
 	}
 
 	let nodes = this.getChildren(node)
 
+	console.log(`children: ${nodes.length}`)
+
 	for (let index = 0, num = nodes.length; index < num; ++index)
 	{
 		let child = nodes[index]
+
+		console.log("action: " + child.action)
 
 		{
 			let indexOpen = this.open.findIndex((openNode) =>
@@ -139,6 +148,7 @@ Planner.prototype.run = function()
 				else
 				{
 					// We're a worse choice
+					console.log("skip: open is better")
 					continue
 				}
 			}
@@ -151,26 +161,31 @@ Planner.prototype.run = function()
 			{
 				let closedNode = this.closed[indexClosed]
 
-				if (closedNode.g > child.g)
+				console.log("closed node found")
+				console.log("closed: " + closedNode.state)
+				console.log("child : " + child.state)
+
+				if (closedNode.f > child.f)
 				{
 					// We're a better choice
+					console.log("keep: closed is worse")
 					this.closed.splice(closedIndex, 1)
 				}
 				else
 				{
+					console.log("skip: closed is better")
 					continue
 				}
 			}
 		}
 
-		console.log("child: " + child.action)
+		console.log("child: " + child.state)
 
 		this.open.push(child)
 	}
 
 	// sort so we pop the next best choice
-	this.open.sort((nodeA, nodeB) =>
-		nodeA.missing(this.goal) > nodeB.missing(this.goal))
+	this.open.sort((nodeA, nodeB) => nodeA.f < nodeB.f)
 
 	return false // not done
 }

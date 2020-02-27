@@ -3,11 +3,12 @@ let Screeps =
 {
 	Actions: require("Screeps_Actions"),
 	Flags: require("Screeps_WorldState"),
+	Sensors: require("Screeps_Sensors"),
 }
 
 let GOAP =
 {
-	Planner: require("GOAP_Planner"),
+	AStar: require("GOAP_AStar"),
 	State: require("GOAP_State"),
 }
 
@@ -21,23 +22,20 @@ let Agent =
 		[ "DepositSource", new Screeps.Actions.DepositSource() ],
 	]),
 
-	World: new GOAP.State(
+	Sensors: new Map(
 	[
-		[ Screeps.Flags.hasEnergy, false ],
+		[ "Storage", new Screeps.Sensors.Storage() ],
 	]),
+
+	World: new GOAP.State(),
 	
 	Goal: new GOAP.State(
 	[
-		[ Screeps.Flags.hasEnergy, true ],
+		[ Screeps.Flags.get("hasEnergy"), true ],
 	])
 }
 
-for (let field in Screeps.Flags)
-{
-	console.log(`${field}: ${Screeps.Flags[field]}`)
-}
-
-var Planner = new GOAP.Planner()
+let Planner = new GOAP.AStar()
 
 module.exports.loop = function()
 {
@@ -58,6 +56,74 @@ module.exports.loop = function()
 	{
 		return // wait for spawn to finish
 	}
+
+	if (agent.memory["world"] != null)
+	{
+		Agent.World = new GOAP.State()
+		Agent.World.fromJSON(agent.memory["world"])
+	}
+
+	for (let [name, sensor] of Agent.Sensors)
+	{
+		sensor.tick(agent, Agent.World)
+	}
+
+	agent.memory["world"] = Agent.World.toJSON()
+
+//	console.log(Agent.World)
+
+	let plan = agent.memory.plan || []
+
+	if (plan.length > 0)
+	{
+		if (agent.memory.planInit)
+		{
+			agent.memory.planInit = false
+
+			let actionName = agent.memory.plan[agent.memory.planIndex]
+			let action = Agent.Actions.get(actionName)
+			if (!action.enter(agent))
+			{
+				console.log("failed to enter: " + action)
+				agent.memory.plan = null
+				agent.memory.planIndex = 0
+				agent.memory.planInit = false
+			}
+		}
+
+		{
+			let actionName = agent.memory.plan[agent.memory.planIndex]
+			let action = Agent.Actions.get(actionName)
+
+			if (action == null)
+			{
+				throw Error(`Failed to get action ${actionName} at index ${agent.memory.planIndex} of plan ${plan}`)
+			}
+	
+			if (action.tick(agent))
+			{
+				if (action.exit(agent))
+				{
+					agent.memory.planInit = true
+					++agent.memory.planIndex
+				}
+				else
+				{
+					console.log("failed to exit: " + action)
+					agent.memory.plan = null
+					agent.memory.planIndex = 0
+					agent.memory.planInit = false
+				}
+			}
+		}
+
+		if (agent.memory.planIndex >= agent.memory.plan.length)
+		{
+			agent.memory.plan = null
+			agent.memory.planIndex = 0
+			agent.memory.planInit = false
+		}
+	}
 }
 
 module.exports.plan = function()
@@ -67,8 +133,12 @@ module.exports.plan = function()
 	let plan = []
 	let count = 0
 
+	console.log("planning")
+
 	while (true)
 	{
+		console.log(`\niteration: ${count}`)
+
 		if (count++ > 100)
 		{
 			console.log("Planning timed out")
@@ -78,7 +148,7 @@ module.exports.plan = function()
 		if (Planner.run())
 		{
 			console.log("Planning complete")
-			plan = Planner.getPlan()
+			plan = Planner.finalPath
 			break
 		}
 	}
@@ -97,7 +167,8 @@ module.exports.plan = function()
 		if (agent != null)
 		{
 			agent.memory.plan = plan
-			agent.memory.step = 0
+			agent.memory.planIndex = 0
+			agent.memory.planInit = true
 		}
 	}
 }

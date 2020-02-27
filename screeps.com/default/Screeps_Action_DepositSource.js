@@ -17,11 +17,11 @@ function DepositSource()
 	this.name = "DepositSource"
 	this.cost = 1
 
-	this.preState.set(Screeps.Flags.inRange_Spawn, true)
-	this.preState.set(Screeps.Flags.hasEnergy, true)
+	this.preState.set(Screeps.Flags.get("inRange_Spawn"), true)
+	this.preState.set(Screeps.Flags.get("hasEnergy"), true)
 
-	this.postState.set(Screeps.Flags.inRange_Spawn, false)
-	this.postState.set(Screeps.Flags.hasEnergy, false)
+	this.postState.set(Screeps.Flags.get("inRange_Spawn"), false)
+	this.postState.set(Screeps.Flags.get("hasEnergy"), false)
 }
 
 DepositSource.prototype.getTarget = function(agent)

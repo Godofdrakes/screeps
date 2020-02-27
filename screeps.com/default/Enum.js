@@ -1,15 +1,13 @@
-function Enum(name, array)
+
+function Enum(name, enums)
 {
 	this.name = name
-	this.array = array
-	this.count = array.length
+	this.count = enums.length
 
-	for (var index = 0; index < this.count; ++index)
+	for (let index = 0, num = this.count; index < num; ++index)
 	{
-		this[this.array[index]] = index
+		this[key] = index
 	}
-
-	return Object.freeze(this)
 }
 
 module.exports = Enum

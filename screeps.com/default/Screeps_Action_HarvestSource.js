@@ -17,10 +17,10 @@ function HarvestSource()
 	this.name = "HarvestSource"
 	this.cost = 1
 
-	this.preState.set(Screeps.Flags.inRange_Source, true)
+	this.preState.set(Screeps.Flags.get("inRange_Source"), true)
 
-	this.postState.set(Screeps.Flags.inRange_Source, false)
-	this.postState.set(Screeps.Flags.hasEnergy, false)
+	this.postState.set(Screeps.Flags.get("inRange_Source"), false)
+	this.postState.set(Screeps.Flags.get("hasEnergy"), true)
 }
 
 HarvestSource.prototype.getTarget = function(agent)
