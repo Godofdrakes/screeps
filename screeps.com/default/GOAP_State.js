@@ -174,7 +174,7 @@ State.prototype.toString = function()
 		else
 			ret += ", "
 
-		ret += `${index}: ${this._getMask(index) ? 1 : 0}`
+		ret += `${index}:${this._getMask(index) ? 1 : 0}`
 
 		first = false
 	}

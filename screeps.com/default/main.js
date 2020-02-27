@@ -147,28 +147,30 @@ module.exports.plan = function()
 
 		if (Planner.run())
 		{
-			console.log("Planning complete")
-			plan = Planner.finalPath
+			plan = Planner.result
 			break
 		}
 	}
 
-	console.log(`Plan length: ${plan.length}`)
-
-	for (let index = 0, num = plan.length; index < num; ++index)
+	if (plan && plan.length > 0)
 	{
-		console.log(`${index}: ${plan[index]}`)
-	}
-
-	if (plan.length > 0)
-	{
-		let agent = Game.creeps["Agent"]
-
-		if (agent != null)
+		console.log(`Planing finished: ${plan.length}`)
+	
+		for (let index = 0, num = plan.length; index < num; ++index)
 		{
-			agent.memory.plan = plan
-			agent.memory.planIndex = 0
-			agent.memory.planInit = true
+			console.log(`${index}: ${plan[index]}`)
 		}
+	
+		// let agent = Game.creeps["Agent"]
+		// if (agent != null)
+		// {
+		// 	agent.memory.plan = plan
+		// 	agent.memory.planIndex = 0
+		// 	agent.memory.planInit = true
+		// }
+	}
+	else
+	{
+		console.log(`Planning failed`)
 	}
 }

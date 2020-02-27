@@ -1,5 +1,5 @@
 
-function AStar()
+function AStar(args)
 {
 	this.goal = null
 	this.result = []
@@ -28,6 +28,17 @@ AStar.prototype.hasOpenNode = function(node)
 	let nodeKey = this.getKey(node)
 	let predicate = (other) => { nodeKey == this.getKey(other) }
 	return this.openSet.some(predicate)
+}
+
+AStar.prototype.openNode = function()
+{
+	if (this.openSet.length === 0)
+	{
+		console.log("nodes exhausted")
+		return null
+	}
+
+	return this.openSet.pop()
 }
 
 AStar.prototype.isGoal = function(node)
@@ -69,7 +80,7 @@ AStar.prototype.buildPath = function(node)
 	let path = []
 	let nodeKey = this.getKey(node)
 
-	while (this.cameFrom.has(nodeKey))
+	while (this.cameFrom.get(nodeKey) != null)
 	{
 		this.addToPath(path, node)
 		node = this.cameFrom.get(nodeKey)
@@ -112,13 +123,12 @@ AStar.prototype.init = function(start, goal)
 
 AStar.prototype.run = function()
 {
-	if (this.openSet.length == 0)
+	let node = this.openNode()
+
+	if (node === null)
 	{
-		console.log("openSet exhausted")
 		return true
 	}
-
-	let node = this.openSet.pop()
 
 	if (this.isGoal(node))
 	{

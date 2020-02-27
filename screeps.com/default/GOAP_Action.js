@@ -4,7 +4,7 @@ let State = require("GOAP_State")
 function Action()
 {
 	this.name = "ActionBase"
-	this.cost = 0
+	this.cost = 1
 	this.preState = new State()
 	this.postState = new State()
 }
